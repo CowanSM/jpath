@@ -1,0 +1,11 @@
+# file ignores
+*.sln
+*.csproj
+*.suo
+Program.cs
+
+# dir ignores
+JPath/obj/*/*
+JPath/bin/*/*
+JPath/Properties/*
+JPath/Properties/*/*
