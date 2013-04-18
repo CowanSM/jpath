@@ -5,7 +5,7 @@
 Program.cs
 
 # dir ignores
-JPath/obj/*/*
-JPath/bin/*/*
-JPath/Properties/*
-JPath/Properties/*/*
+src/obj/*/*
+src/bin/*/*
+src/Properties/*
+src/Properties/*/*
