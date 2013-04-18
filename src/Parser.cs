@@ -6,8 +6,6 @@ using System.Text;
 
 namespace JSONPathVS {
 
-    public delegate void Tokener(string c);
-
     public interface IJsonConstruct {
         JSONObject DoConstruction(string ch, JSONParser parser);
         void AddObject(JSONObject obj);
@@ -206,6 +204,30 @@ namespace JSONPathVS {
         #endregion
     }
 
+    public class ConstructNull : IJsonConstruct {
+        private JSONObject objBuidling;
+
+        public ConstructNull() {
+            objBuidling = new JSONObject();
+            objBuidling.SetAsNull();
+        }
+
+        #region IJsonConstruct Members
+
+        public JSONObject DoConstruction(string ch, JSONParser parser) {
+            if (ch.Equals(",") || ch.Equals("]") || ch.Equals("}")) {
+                return objBuidling;
+            }
+            return null;
+        }
+
+        public void AddObject(JSONObject obj) {
+            throw new InvalidOperationException("Cannot add objects to ConstructNull construct");
+        }
+
+        #endregion
+    }
+
     public class JSONParser {
 
         internal static Dictionary<string, Type> tokenDict;
@@ -219,7 +241,8 @@ namespace JSONPathVS {
             tokenDict.Add("\\[", typeof(ConstructArray));
             tokenDict.Add("\\\"", typeof(ConstructString));
             tokenDict.Add("[TtFf]", typeof(ConstructBoolean));
-            tokenDict.Add("[0-9\\.]", typeof(ConstructDouble));
+            tokenDict.Add("[\\-0-9\\.]", typeof(ConstructDouble));
+            tokenDict.Add("[n]", typeof(ConstructNull));
         }
 
         public static JSONParser CreateParser(Stream inputStream) {

@@ -9,7 +9,7 @@ namespace JSONPathVS {
         private double dvalue;
         private bool bvalue;
 
-        internal enum JsonType { jobj, jarr, jnum, jbool, jstr };
+        internal enum JsonType { jobj, jarr, jnum, jbool, jstr, jnull };
         internal JsonType type;
 
         public JSONObject() {
@@ -239,13 +239,17 @@ namespace JSONPathVS {
                     return this.dvalue.ToString();
                 case JsonType.jobj:
                     string str = "{";
-                    foreach (var obj in this.children) {
-                        str += "\"" + obj.Key + "\":" + obj.Value.ToString() + ", ";
+                    if (this.children.Count > 0) {
+                        foreach (var obj in this.children) {
+                            str += "\"" + obj.Key + "\":" + obj.Value.ToString() + ", ";
+                        }
+                        str = str.Substring(0, str.Length - 2);
                     }
-                    str = str.Substring(0, str.Length - 2);
                     return str + "}";
                 case JsonType.jstr:
                     return "\"" + this.svalue + "\"";
+                case JsonType.jnull:
+                    return "null";
                 default:
                     return "unknown type";
             }
@@ -257,6 +261,13 @@ namespace JSONPathVS {
             svalue = null;
             dvalue = double.NaN;
             type = JsonType.jarr;
+        }
+
+        public void SetAsNull() {
+            array = null;
+            children = null;
+            svalue = null;
+            this.type = JsonType.jnull;
         }
 
         public bool HasChild(string key) {
