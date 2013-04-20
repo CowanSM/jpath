@@ -44,21 +44,62 @@ namespace JSONPathVS {
             dvalue = double.NaN;
         }
 
+        /// <summary>
+        /// Returns the child by key. If the child does not exist, and we are a jobj, add the object.
+        /// </summary>
+        /// <param name="key">Name of the child</param>
+        /// <returns>The JSONObject child</returns>
         public JSONObject this[string key] {
             get {
-                if (children != null && children.ContainsKey(key)) {
-                    return children[key];
+                if (children != null) {
+                    if (children.ContainsKey(key)) {
+                        return children[key];
+                    } else {
+                        children.Add(key, new JSONObject());
+                        return children[key];
+                    }
                 }
                 return null;
             }
+            set {
+                if (children != null) {
+                    if (children.ContainsKey(key)) {
+                        children[key] = value;
+                    } else {
+                        JSONObject jo = value;
+                        children.Add(key, jo);
+                    }
+                }
+            }
         }
 
+        /// <summary>
+        /// Returns the child by index. If the index is greater than the current count, add a new object at the largest index.
+        /// </summary>
+        /// <param name="key">Index to get the child</param>
+        /// <returns>The child at the index, or a new child at the largest index</returns>
         public JSONObject this[int key] {
             get {
-                if (array != null && key < array.Count) {
-                    return array[key];
+                if (array != null) {
+                    if (key < array.Count) {
+                        return array[key];
+                    } else {
+                        array.Add(new JSONObject());
+                        return array[array.Count - 1];
+                    }
                 }
                 return null;
+            }
+            set {
+                if (array != null) {
+                    if (key < array.Count)
+                        array[key] = value;
+                    else {
+                        JSONObject jo = new JSONObject();
+                        jo = value;
+                        array.Add(jo);
+                    }
+                }
             }
         }
 
@@ -88,6 +129,13 @@ namespace JSONPathVS {
         }
 
         public override bool Equals(object obj) {
+            if (System.Object.ReferenceEquals(null, obj)) {
+                if (System.Object.ReferenceEquals(null, this) || this.type == JsonType.jnull)
+                    return true;
+                else
+                    return false;
+            }
+
             if (obj.GetType() == typeof(string)) {
                 return obj.ToString().Equals(this.svalue);
             } else if (obj.GetType() == typeof(double)) {
@@ -115,6 +163,8 @@ namespace JSONPathVS {
                         return ret;
                     case JsonType.jstr:
                         return this.Equals(jo.svalue);
+                    case JsonType.jnull:
+                        return this.type == JsonType.jnull;
                 }
             } else if (obj.GetType() == typeof(List<JSONObject>)) {
                 return this.array == (List<JSONObject>)obj;
