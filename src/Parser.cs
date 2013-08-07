@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace JSONPathVS {
+namespace Jpath {
 
     public interface IJsonConstruct {
         JSONObject DoConstruction(string ch, JSONParser parser);

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace JSONPathVS {
+namespace Jpath {
     public class JSONObject {
         private Dictionary<string, JSONObject> children;
         private List<JSONObject> array;
@@ -92,12 +92,16 @@ namespace JSONPathVS {
             }
             set {
                 if (array != null) {
-                    if (key < array.Count)
-                        array[key] = value;
-                    else {
-                        JSONObject jo = new JSONObject();
-                        jo = value;
-                        array.Add(jo);
+                    if (CheckDataConsistency(value)) {
+                        if (key < array.Count)
+                            array[key] = value;
+                        else {
+                            JSONObject jo = new JSONObject();
+                            jo = value;
+                            array.Add(jo);
+                        }
+                    } else {
+                        throw new ArrayTypeMismatchException("Cannot add value " + value.ToString() + " to data array");
                     }
                 }
             }
@@ -338,180 +342,17 @@ namespace JSONPathVS {
                 this.array.Add(child);
             }
         }
+
+        private bool CheckDataConsistency(JSONObject value) {
+            // check that the value being sent in is consistent with other data points
+            bool retval = true;
+            if (array.Count > 0) {
+                Console.Out.WriteLine("value type: " + value.type.ToString());
+                Console.Out.WriteLine("Array type: " + array[0].type.ToString());
+                if (value.type != array[0].type)
+                    retval = false;
+            }
+            return retval;
+        }
     }
-
-    //public abstract class JSONBase {
-    //    protected Dictionary<string, JSONBase> children;
-    //    protected List<JSONBase> array;
-
-    //    public virtual JSONBase this[string key] {
-    //        get {
-    //            if (children != null && children.ContainsKey(key)) {
-    //                return children[key];
-    //            }
-    //            return null;
-    //        }
-    //        set {
-    //            if (children != null) {
-    //                if (children.ContainsKey(key)) {
-    //                    children[key] = value;
-    //                } else {
-    //                    children.Add(key, value);
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    public virtual JSONBase this[int i] {
-    //        get {
-    //            if (array != null && i < array.Count) {
-    //                return array[i];
-    //            }
-    //            return null;
-    //        }
-    //        set {
-    //            if (array != null && i < array.Count) {
-    //                array[i] = value;
-    //            }
-    //        }
-    //    }
-
-    //    public virtual void AddItem(JSONBase item) {
-    //        if (array != null)
-    //            array.Add(item);
-    //    }
-    //}
-
-    //public class JSONObject : JSONBase {
-    //    public JSONObject() {
-    //        this.children = new Dictionary<string, JSONBase>();
-    //    }
-
-    //    public void AddChild(string key, JSONBase obj) {
-    //        this.children.Add(key, obj);
-    //    }
-    //}
-
-    //public class JSONArray : JSONBase {
-    //    public JSONArray() {
-    //        this.array = new List<JSONBase>();
-    //    }
-
-    //    public void Add(JSONBase jb) {
-    //        this.array.Add(jb);
-    //    }
-    //}
-
-    //public class JSONBool : JSONBase {
-    //    private bool bvalue;
-
-    //    public JSONBool(bool b) {
-    //        this.bvalue = b;
-    //    }
-
-    //    public static implicit operator JSONBool(bool b) {
-    //        return new JSONBool(b);
-    //    }
-
-    //    public static implicit operator bool(JSONBool jb) {
-    //        return jb.bvalue;
-    //    }
-
-    //    public static bool operator !=(JSONBool jb, bool b) {
-    //        return jb.bvalue != b;
-    //    }
-
-    //    public static bool operator ==(JSONBool jb, bool b) {
-    //        return jb.bvalue == b;
-    //    }
-    //}
-
-    //public class JSONString : JSONBase {
-    //    private string svalue;
-
-    //    public JSONString(string s) {
-    //        this.svalue = s;
-    //    }
-
-    //    public static implicit operator JSONString(string s) {
-    //        return new JSONString(s);
-    //    }
-
-    //    public static implicit operator string(JSONString js) {
-    //        return js.svalue;
-    //    }
-
-    //    public static bool operator !=(JSONString js, string s) {
-    //        return !js.svalue.Equals(s);
-    //    }
-
-    //    public static bool operator ==(JSONString js, string s) {
-    //        return js.svalue.Equals(s);
-    //    }
-    //}
-
-    //public class JSONNumber : JSONBase {
-    //    private double dvalue;
-
-    //    public JSONNumber(double d) {
-    //        this.dvalue = d;
-    //    }
-
-    //    public static implicit operator JSONNumber(double d) {
-    //        return new JSONNumber(d);
-    //    }
-
-    //    public static implicit operator double(JSONNumber jn) {
-    //        return jn.dvalue;
-    //    }
-
-    //    public static bool operator ==(JSONNumber jn, double d) {
-    //        return jn.dvalue == d;
-    //    }
-
-    //    public static bool operator ==(double d, JSONNumber jn) {
-    //        return jn.dvalue == d;
-    //    }
-
-    //    public static bool operator !=(JSONNumber jn, double d) {
-    //        return jn.dvalue != d;
-    //    }
-
-    //    public static bool operator !=(double d, JSONNumber jn) {
-    //        return jn.dvalue != d;
-
-    //    }
-
-    //    public static bool operator <(JSONNumber jn, double d) {
-    //        return jn.dvalue < d;
-    //    }
-
-    //    public static bool operator >(JSONNumber jn, double d) {
-    //        return jn.dvalue > d;
-    //    }
-
-    //    public static JSONNumber operator +(JSONNumber jn, double d) {
-    //        return new JSONNumber(jn.dvalue + d);
-    //    }
-
-    //    public static JSONNumber operator *(JSONNumber jn, double d) {
-    //        return new JSONNumber(jn.dvalue * d);
-    //    }
-
-    //    public static JSONNumber operator -(JSONNumber jn, double d) {
-    //        return new JSONNumber(jn.dvalue - d);
-    //    }
-
-    //    public static JSONNumber operator -(double d, JSONNumber jn) {
-    //        return new JSONNumber(d - jn.dvalue);
-    //    }
-
-    //    public static JSONNumber operator /(JSONNumber jn, double d) {
-    //        return new JSONNumber(jn.dvalue / d);
-    //    }
-
-    //    public static JSONNumber operator /(double d, JSONNumber jn) {
-    //        return new JSONNumber(d / jn.dvalue);
-    //    }
-    //}
 }
